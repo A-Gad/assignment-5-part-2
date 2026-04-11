@@ -19,6 +19,11 @@ case "$1" in
     insmod /lib/modules/$(uname -r)/extra/faulty.ko
     modprobe scull
     major=$(awk "\$2==\"scull\" {print \$1}" /proc/devices)
+    faulty_major=$(awk "\$2==\"faulty\" {print \$1}" /proc/devices)
+
+    rm -f /dev/faulty
+    mknod /dev/faulty c $faulty_major 0
+    chmod $mode /dev/faulty
 
     rm -f /dev/${device}[0-3]
     mknod /dev/${device}0 c $major 0
@@ -65,6 +70,7 @@ case "$1" in
     rmmod hello || exit 1
     
     # Remove stale nodes
+    rm -f /dev/faulty
     rm -f /dev/${device} /dev/${device}[0-3] 
     rm -f /dev/${device}priv
     rm -f /dev/${device}pipe /dev/${device}pipe[0-3]
